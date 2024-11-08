@@ -1,0 +1,42 @@
+(Get-Acl "C:\Users\Default").Access | Format-Table -Auto
+
+---------------
+
+
+
+Get-ExecutionPolicy
+
+-----------------------
+
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+-----------------------
+
+Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+
+
+------------------------
+
+# Define the profile path
+$profile = "C:\Users\Default"
+
+# Get the existing ACL (Access Control List) of the profile folder
+$acl = Get-Acl $profile
+
+# Disable ACL inheritance, keeping the existing access rules as is
+$acl.SetAccessRuleProtection($true, $false)
+
+# Define access rules for "Users" and "Everyone" identities
+$rule1 = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Users", "ReadAndExecute", "ContainerInherit, ObjectInherit", "None", "Allow")
+$rule2 = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule("Everyone", "ReadAndExecute", "ContainerInherit, ObjectInherit", "None", "Allow")
+
+# Apply the defined access rules
+$acl.SetAccessRule($rule1)
+$acl.SetAccessRule($rule2)
+
+# Apply the updated ACL back to the profile folder
+Set-Acl -Path $profile -AclObject $acl -Verbose
+
+
+----------------------------------
+
